@@ -29,7 +29,7 @@ from app.services.analysis import (
 )
 
 # Initialize FastAPI app
-app = FastAPI(
+app = FastAPI(root_path="/cloudsavings-ai", 
     title="AI Ops Cost Analyzer",
     description="AI-powered cloud cost analysis and optimization recommendations",
     version="1.0.0"
