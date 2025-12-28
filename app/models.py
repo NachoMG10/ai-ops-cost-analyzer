@@ -4,9 +4,10 @@ Based on the CSV structure: service, region, instance_type, daily_cost,
 usage_cpu_avg, usage_mem_avg, date, status
 """
 
-from datetime import date
+from __future__ import annotations
+from datetime import date as date_type
 from typing import Optional, List
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
 
 
@@ -26,17 +27,8 @@ class CostRecord(BaseModel):
     daily_cost: float = Field(..., ge=0, description="Daily cost in USD")
     usage_cpu_avg: str = Field(..., description="Average CPU usage percentage")
     usage_mem_avg: str = Field(..., description="Average memory usage percentage")
-    date: date = Field(..., description="Date of the record")
+    date: date_type = Field(..., description="Date of the record")
     status: ResourceStatus = Field(..., description="Resource status")
-
-    @field_validator('usage_cpu_avg', 'usage_mem_avg', mode='before')
-    @classmethod
-    def parse_usage_percentage(cls, v):
-        """Parse percentage string to float"""
-        if isinstance(v, str):
-            # Remove % sign and convert to float
-            return float(v.replace('%', ''))
-        return float(v)
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -82,9 +74,9 @@ class AnalysisSummary(BaseModel):
     idle_count: int
     high_cost_anomaly_count: int
     potential_monthly_savings: float = Field(..., description="Estimated potential monthly savings")
-    underutilized_resources: List[CostRecordResponse]
-    idle_resources: List[CostRecordResponse]
-    high_cost_anomalies: List[CostRecordResponse]
+    underutilized_resources: List['CostRecordResponse'] = Field(default_factory=list)
+    idle_resources: List['CostRecordResponse'] = Field(default_factory=list)
+    high_cost_anomalies: List['CostRecordResponse'] = Field(default_factory=list)
 
 
 class CostSavingsReport(BaseModel):
@@ -94,11 +86,18 @@ class CostSavingsReport(BaseModel):
     recommendations: List[str] = Field(..., description="Actionable recommendations")
     estimated_savings: float = Field(..., description="Estimated total savings per month")
     priority_actions: List[str] = Field(..., description="Priority actions to take")
-    analysis_summary: AnalysisSummary
+    analysis_summary: 'AnalysisSummary'
 
 
 class CSVUploadResponse(BaseModel):
     """Response after CSV upload"""
     message: str
     records_processed: int
-    analysis_summary: AnalysisSummary
+    analysis_summary: 'AnalysisSummary'
+
+
+# Update forward references after all models are defined
+# This prevents RecursionError in Pydantic v2 when generating OpenAPI schema
+AnalysisSummary.model_rebuild()
+CostSavingsReport.model_rebuild()
+CSVUploadResponse.model_rebuild()
