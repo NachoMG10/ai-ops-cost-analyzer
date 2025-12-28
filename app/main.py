@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any
 import pandas as pd
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.models import (
@@ -57,11 +57,21 @@ ai_service = AIService(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
+# Templates directory
+templates_dir = Path(__file__).parent / "templates"
+templates = Jinja2Templates(directory=str(templates_dir)) if templates_dir.exists() else None
 
-@app.get("/")
+
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    """Root endpoint"""
-    return {
+    """Root endpoint - returns HTML page"""
+    html_file = Path(__file__).parent / "templates" / "index.html"
+    if html_file.exists():
+        with open(html_file, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    
+    # Fallback to JSON if HTML file doesn't exist
+    return JSONResponse({
         "message": "AI Ops Cost Analyzer API",
         "version": "1.0.0",
         "endpoints": {
@@ -71,7 +81,7 @@ async def root():
             "generate_report": "/api/v1/generate-report",
             "health": "/health"
         }
-    }
+    })
 
 
 @app.get("/health")

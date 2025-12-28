@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy dummy data file
 COPY dummy_data.csv .
 
-# Copy application code
+# Copy application code (including templates)
 COPY app/ ./app/
 
 # Expose port (Coolify will map this automatically)
