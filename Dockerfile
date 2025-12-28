@@ -12,6 +12,9 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy dummy data file
+COPY dummy_data.csv .
+
 # Copy application code
 COPY app/ ./app/
 
