@@ -1,0 +1,8 @@
+service,region,instance_type,daily_cost,usage_cpu_avg,usage_mem_avg,date,status
+ec2-web-server-01,us-east-1,m5.2xlarge,15.50,12%,30%,2023-10-01,active
+ec2-db-primary,us-east-1,r5.4xlarge,45.20,65%,80%,2023-10-01,active
+ec2-legacy-worker,us-west-2,c5.xlarge,8.40,2%,5%,2023-10-01,active
+rds-snapshot-archive,us-east-1,storage,12.00,0%,0%,2023-10-01,active
+nat-gateway-dev,us-east-1,network,3.50,5%,0%,2023-10-01,active
+elastic-load-balancer,us-east-1,network,18.00,15%,0%,2023-10-01,active
+ec2-dev-test-box,us-east-1,t3.medium,1.20,0.5%,2%,2023-10-01,idle
