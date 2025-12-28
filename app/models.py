@@ -6,7 +6,7 @@ usage_cpu_avg, usage_mem_avg, date, status
 
 from datetime import date
 from typing import Optional, List
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from enum import Enum
 
 
@@ -29,7 +29,8 @@ class CostRecord(BaseModel):
     date: date = Field(..., description="Date of the record")
     status: ResourceStatus = Field(..., description="Resource status")
 
-    @validator('usage_cpu_avg', 'usage_mem_avg')
+    @field_validator('usage_cpu_avg', 'usage_mem_avg', mode='before')
+    @classmethod
     def parse_usage_percentage(cls, v):
         """Parse percentage string to float"""
         if isinstance(v, str):
@@ -37,8 +38,7 @@ class CostRecord(BaseModel):
             return float(v.replace('%', ''))
         return float(v)
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class CostRecordResponse(CostRecord):
@@ -63,7 +63,7 @@ class CostRecordResponse(CostRecord):
         mem_float = float(record.usage_mem_avg.replace('%', '')) if isinstance(record.usage_mem_avg, str) else record.usage_mem_avg
         
         return cls(
-            **record.dict(),
+            **record.model_dump(),
             usage_cpu_avg_float=cpu_float,
             usage_mem_avg_float=mem_float,
             monthly_cost_estimate=record.daily_cost * 30,
