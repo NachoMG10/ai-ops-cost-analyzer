@@ -57,11 +57,6 @@ ai_service = AIService(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
-# Templates directory
-templates_dir = Path(__file__).parent / "templates"
-templates = Jinja2Templates(directory=str(templates_dir)) if templates_dir.exists() else None
-
-
 @app.get("/", response_class=HTMLResponse)
 async def root():
     """Root endpoint - returns HTML page"""
